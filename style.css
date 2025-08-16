@@ -63,7 +63,7 @@ label {
 }
 
 .table {
-    margin-top : 50px;
+    margin-top : 70px;
     height: auto;
     width: auto;
     border-collapse: collapse;
@@ -101,4 +101,89 @@ label {
 
 .analyse-box button:hover {
     background-color: #45a049;
+}
+
+/* Analysis Summary Styles */
+.analysis-summary {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background-color: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-left: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.summary-label {
+    color: #495057;
+    font-weight: 600;
+}
+
+.summary-value {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-weight: bold;
+    min-width: 30px;
+    text-align: center;
+}
+
+.summary-value.failed {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.summary-value.passed {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+/* GPA Box Styles */
+.gpa-box {
+    width: 150px;
+    min-height: 60px;
+    background-color: #e3f2fd;
+    position: absolute;
+    top: 10px;
+    left: 300px;
+    z-index: 9999;
+    border: 1px solid #2196f3;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(33, 150, 243, 0.3);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #333;
+}
+
+.gpa-btn {
+    padding: 6px 12px;
+    background-color: #2196f3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.gpa-btn:hover {
+    background-color: #1976d2;
 }
