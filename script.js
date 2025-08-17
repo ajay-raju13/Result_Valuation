@@ -60,6 +60,10 @@ addbtn.addEventListener('click', function () {
                     const analyseBoxes = document.querySelectorAll('.analyse-box');
                     analyseBoxes.forEach(box => box.remove());
                     
+                    // Remove GPA boxes if they exist
+                    const gpaBoxes = document.querySelectorAll('.gpa-box');
+                    gpaBoxes.forEach(box => box.remove());
+                    
                     // Remove analysis summary if it exists
                     const analysisSummary = document.querySelector('.analysis-summary');
                     if (analysisSummary) {
@@ -106,9 +110,16 @@ analyse.addEventListener('click', function () {
     if (input.files.length === 0) {
         alert("Please select a file.");
     } else {
+        // Check if analyse box already exists
+        const existingAnalyseBox = document.querySelector('.analyse-box');
+        if (existingAnalyseBox) {
+            alert("Analyse box already exists");
+            return;
+        }
+        
         const analyse_box = document.createElement('div');
         analyse_box.classList = 'analyse-box';
-        analyse.appendChild(analyse_box);
+        topBar.appendChild(analyse_box);
 
         const table = document.querySelector('.table');
         const rows = table.querySelectorAll('tr');
@@ -151,6 +162,13 @@ analyse.addEventListener('click', function () {
         analyse_box.appendChild(sort_btn);
 
         analyse_table_btn.addEventListener('click', function () {
+            // Check if analysis table already exists
+            const existingAnalysisTable = document.querySelector('#analyse-table');
+            if (existingAnalysisTable) {
+                alert("Analyse table already exists");
+                return;
+            }
+            
             const tableContainer = document.querySelector('.table-container');
             const analyseTable = document.createElement('table');
             analyseTable.classList.add('table');
@@ -263,10 +281,11 @@ analyse.addEventListener('click', function () {
         });
 
         sort_btn.addEventListener('click', function () {
-            // Remove existing GPA box if any
+            // Check if GPA box already exists
             const existingGpaBox = document.querySelector('.gpa-box');
             if (existingGpaBox) {
-                existingGpaBox.remove();
+                alert("GPA box already exists");
+                return;
             }
 
             // Create GPA box div
@@ -289,8 +308,8 @@ analyse.addEventListener('click', function () {
             gpaBox.appendChild(sgpaBtn);
             gpaBox.appendChild(cgpaBtn);
             
-            // Position the box near the sort button
-            analyse_box.appendChild(gpaBox);
+            // Position the box in the top bar
+            topBar.appendChild(gpaBox);
             
             // SGPA button click functionality
             sgpaBtn.addEventListener('click', function () {
