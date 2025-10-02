@@ -59,17 +59,14 @@ addbtn.addEventListener('click', function () {
                 deleButton.addEventListener('click', function () {
                     const analyseBoxes = document.querySelectorAll('.analyse-box');
                     analyseBoxes.forEach(box => box.remove());
-                    
                     // Remove GPA boxes if they exist
                     const gpaBoxes = document.querySelectorAll('.gpa-box');
                     gpaBoxes.forEach(box => box.remove());
-                    
                     // Remove analysis summary if it exists
                     const analysisSummary = document.querySelector('.analysis-summary');
                     if (analysisSummary) {
                         analysisSummary.remove();
                     }
-                    
                     div.remove();
                     deleButton.remove();
                     deleButton = null;
@@ -77,20 +74,17 @@ addbtn.addEventListener('click', function () {
                     searchbar = null;
                     label.remove();
                 });
-
                 topBar.appendChild(deleButton);
             }
 
             for (let i = 0; i < rows.length; i++) {
                 const columns = rows[i].split(",");
                 const tr = document.createElement('tr');
-
                 for (let j = 0; j < columns.length; j++) {
                     const cell = document.createElement(i === 0 ? 'th' : 'td');
                     cell.textContent = columns[j].trim();
                     tr.appendChild(cell);
                 }
-
                 table.appendChild(tr);
             }
         };
@@ -168,56 +162,197 @@ analyse.addEventListener('click', function () {
                 alert("Analyse table already exists");
                 return;
             }
-            
+
+            // Add Analyse Graph button
+            const analyse_graph_btn = document.createElement('button');
+            analyse_graph_btn.textContent = 'Analyse Graph';
+            analyse_graph_btn.id = 'analyse-graph-btn';
+            analyse_box.appendChild(analyse_graph_btn);
+
+            analyse_graph_btn.addEventListener('click', function () {
+                // Remove existing graph if any
+                const existingGraph = document.getElementById('analyse-graph-canvas');
+                if (existingGraph) {
+                    existingGraph.parentNode.removeChild(existingGraph);
+                }
+
+                // Get subject names from main table header (th index 1-8)
+                const mainTable = document.querySelector('.table');
+                if (!mainTable) {
+                    alert('Main table not found.');
+                    return;
+                }
+                const ths = mainTable.querySelectorAll('tr th');
+                const subjects = [];
+                for (let i = 1; i <= 8; i++) {
+                    if (ths[i]) subjects.push(ths[i].textContent.trim());
+                }
+
+                // Get pass/fail counts from analyse table
+                const analyseTable = document.getElementById('analyse-table');
+                if (!analyseTable) {
+                    alert('Please generate the analyse table first.');
+                    return;
+                }
+                const rows = analyseTable.querySelectorAll('tr');
+                const passCounts = [];
+                const failCounts = [];
+                for (let i = 1; i <= 8; i++) {
+                    const tds = rows[i].querySelectorAll('td');
+                    let pass = 0;
+                    for (let j = 1; j <= 10; j++) {
+                        pass += parseInt(tds[j].textContent) || 0;
+                    }
+                    let fail = parseInt(tds[11].textContent) || 0;
+                    passCounts.push(pass);
+                    failCounts.push(fail);
+                }
+
+                // Calculate percentages
+                const passPercentages = passCounts.map((pass, idx) => {
+                    const total = pass + failCounts[idx];
+                    return total > 0 ? (pass / total) * 100 : 0;
+                });
+                const failPercentages = failCounts.map((fail, idx) => {
+                    const total = passCounts[idx] + fail;
+                    return total > 0 ? (fail / total) * 100 : 0;
+                });
+
+                // Create canvas for chart
+                const canvas = document.createElement('canvas');
+                canvas.id = 'analyse-graph-canvas';
+                // Make the graph always fully visible and responsive
+                const analyseTableElem = document.getElementById('analyse-table');
+                let tableWidth = 900;
+                if (analyseTableElem) {
+                    const rect = analyseTableElem.getBoundingClientRect();
+                    tableWidth = Math.max(rect.width, 900);
+                }
+                canvas.style.display = 'block';
+                canvas.style.margin = '40px auto 0 auto';
+                canvas.style.width = '100%';
+                canvas.style.maxWidth = tableWidth + 'px';
+                canvas.style.minWidth = '600px';
+                canvas.width = tableWidth;
+                canvas.height = 540;
+                // Ensure parent allows horizontal scroll if needed
+                if (canvas.parentNode) {
+                    canvas.parentNode.style.overflowX = 'auto';
+                }
+                // Place just after the analyse table
+                if (analyseTableElem && analyseTableElem.parentNode) {
+                    analyseTableElem.parentNode.insertBefore(canvas, analyseTableElem.nextSibling);
+                } else {
+                    document.body.appendChild(canvas);
+                }
+
+                // Draw bar graph using Canvas API
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Chart settings
+                const margin = 60;
+                const barWidth = 20;
+                const groupWidth = 60;
+                const maxBarHeight = canvas.height - 2 * margin;
+                const maxY = 100;
+
+                // Draw axes
+                ctx.beginPath();
+                ctx.moveTo(margin, margin);
+                ctx.lineTo(margin, canvas.height - margin);
+                ctx.lineTo(canvas.width - margin, canvas.height - margin);
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Draw y-axis labels
+                ctx.font = '12px Arial';
+                ctx.fillStyle = '#333';
+                for (let y = 0; y <= 100; y += 20) {
+                    const yPos = canvas.height - margin - (y / maxY) * maxBarHeight;
+                    ctx.fillText(y + '%', margin - 40, yPos + 5);
+                    ctx.beginPath();
+                    ctx.moveTo(margin - 5, yPos);
+                    ctx.lineTo(margin, yPos);
+                    ctx.stroke();
+                }
+
+                // Draw bars
+                for (let i = 0; i < subjects.length; i++) {
+                    const x0 = margin + groupWidth * i + 20;
+                    // Pass bar
+                    const passHeight = (passPercentages[i] / maxY) * maxBarHeight;
+                    ctx.fillStyle = '#43a047';
+                    ctx.fillRect(x0, canvas.height - margin - passHeight, barWidth, passHeight);
+                    // Fail bar
+                    const failHeight = (failPercentages[i] / maxY) * maxBarHeight;
+                    ctx.fillStyle = '#f44336';
+                    ctx.fillRect(x0 + barWidth + 5, canvas.height - margin - failHeight, barWidth, failHeight);
+                    // Subject label
+                    ctx.save();
+                    ctx.translate(x0 + barWidth, canvas.height - margin + 20);
+                    ctx.rotate(-Math.PI / 6);
+                    ctx.textAlign = 'right';
+                    ctx.fillStyle = '#1976d2';
+                    ctx.font = '12px Arial';
+                    ctx.fillText(subjects[i], 0, 0);
+                    ctx.restore();
+                    // Bar labels
+                    ctx.font = 'bold 12px Arial';
+                    ctx.fillStyle = '#43a047';
+                    ctx.fillText(passPercentages[i].toFixed(1) + '%', x0, canvas.height - margin - passHeight - 8);
+                    ctx.fillStyle = '#f44336';
+                    ctx.fillText(failPercentages[i].toFixed(1) + '%', x0 + barWidth + 5, canvas.height - margin - failHeight - 8);
+                }
+
+                // Draw total pass and fail percentage at the top
+                const totalPass = passCounts.reduce((a, b) => a + b, 0);
+                const totalFail = failCounts.reduce((a, b) => a + b, 0);
+                const total = totalPass + totalFail;
+                const overallPass = total > 0 ? (totalPass / total) * 100 : 0;
+                const overallFail = total > 0 ? (totalFail / total) * 100 : 0;
+                ctx.font = 'bold 20px Segoe UI, Arial';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#43a047';
+                ctx.fillText('Total Pass: ' + overallPass.toFixed(1) + '%', canvas.width / 2 - 100, margin - 30);
+                ctx.fillStyle = '#f44336';
+                ctx.fillText('Total Fail: ' + overallFail.toFixed(1) + '%', canvas.width / 2 + 100, margin - 30);
+            });
+
+            // ...existing code for analyse table creation...
             const tableContainer = document.querySelector('.table-container');
             const analyseTable = document.createElement('table');
             analyseTable.classList.add('table');
             analyseTable.id = 'analyse-table';
             tableContainer.appendChild(analyseTable);
-            
-            // Create header row with specified headings
+            // ...existing code for header and data rows...
             const headerRow = document.createElement('tr');
-            const headings = ['index', 'S', 'A+', 'A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'P', 'F', 'AB'];
-            
+            const headings = ['index', 'S', 'A+', 'A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'P', 'F', 'AB', 'Total Pass'];
             headings.forEach(heading => {
                 const th = document.createElement('th');
                 th.textContent = heading;
                 headerRow.appendChild(th);
             });
-            
             analyseTable.appendChild(headerRow);
-            
-            // Get the original table's header row (th elements from index 1 to 8)
             const originalTable = document.querySelector('.table');
             const originalHeaderRow = originalTable.querySelector('tr');
             const originalHeaders = originalHeaderRow.querySelectorAll('th');
-            
-            // Create data rows using original table headers (index 1-8)
             for (let i = 1; i <= 8; i++) {
                 const dataRow = document.createElement('tr');
-                
-                // First cell is the header value from original table (index 1-8)
                 const indexCell = document.createElement('td');
                 if (originalHeaders[i]) {
                     indexCell.textContent = originalHeaders[i].textContent;
                 }
                 dataRow.appendChild(indexCell);
-                
-                // Initialize grade count variables
                 let countS = 0, countAplus = 0, countA = 0, countBplus = 0, countB = 0, countCplus = 0;
                 let countC = 0, countDplus = 0, countD = 0, countP = 0, countF = 0, countAB = 0;
-                
-                // Traverse through each row of the original table for this column (index i)
                 const originalRows = originalTable.querySelectorAll('tr');
                 originalRows.forEach((row, rowIndex) => {
-                    // Skip header row
                     if (rowIndex === 0) return;
-                    
                     const cells = row.querySelectorAll('td');
                     if (cells[i]) {
                         const grade = cells[i].textContent.trim().toUpperCase();
-                        
-                        // Count occurrences of each grade
                         switch(grade) {
                             case 'S': countS++; break;
                             case 'A+': countAplus++; break;
@@ -234,16 +369,19 @@ analyse.addEventListener('click', function () {
                         }
                     }
                 });
-                
-                // Create cells for each grade with the counted values
                 const gradeCounts = [countS, countAplus, countA, countBplus, countB, countCplus, countC, countDplus, countD, countP, countF, countAB];
-                
                 gradeCounts.forEach(count => {
                     const cell = document.createElement('td');
                     cell.textContent = count;
                     dataRow.appendChild(cell);
                 });
-                
+                // Add Total Pass column (sum of all pass grades)
+                const totalPass = countS + countAplus + countA + countBplus + countB + countCplus + countC + countDplus + countD + countP;
+                const totalPassCell = document.createElement('td');
+                totalPassCell.textContent = totalPass;
+                totalPassCell.style.fontWeight = 'bold';
+                totalPassCell.style.background = '#e3ffe6';
+                dataRow.appendChild(totalPassCell);
                 analyseTable.appendChild(dataRow);
             }
         });
