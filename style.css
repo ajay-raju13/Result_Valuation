@@ -1,3 +1,238 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #f0f4fd 0%, #e0e7ef 100%);
+    min-height: 100vh;
+    color: #222;
+}
+
+#container {
+    max-width: 1200px;
+    margin: 40px auto 0 auto;
+    background: linear-gradient(120deg, #f8fbff 60%, #e3f0ff 100%);
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(60,60,60,0.13);
+    padding: 32px 32px 48px 32px;
+    min-height: 80vh;
+    position: relative;
+    border: 2px solid #b3d0f7;
+}
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+    justify-content: flex-start;
+    min-height: 70px;
+    background: linear-gradient(90deg, #e3f0ff 60%, #f0f4fd 100%);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(120,180,255,0.10);
+    padding: 18px 24px;
+    border: 1.5px solid #b3d0f7;
+}
+
+.table-container {
+    width: 100%;
+    font-size: 15px;
+    margin: 0 auto 32px auto;
+    background: linear-gradient(120deg, #e3f0ff 60%, #f8fbff 100%);
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(120,180,255,0.10);
+    padding: 18px 12px 24px 12px;
+    border: 1.5px solid #b3d0f7;
+}
+
+.table th,
+.table td {
+    border: 1px solid #b3d0f7;
+    padding: 12px 16px;
+    text-align: left;
+    transition: background 0.2s;
+}
+.table th {
+    background: linear-gradient(90deg, #b3d0f7 80%, #e3f0ff 100%);
+    font-weight: 700;
+    color: #1a237e;
+    letter-spacing: 0.5px;
+}
+.table {
+    margin-top: 40px;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #f8fbff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(120,180,255,0.10);
+}
+.table tr:hover td {
+    background-color: #e3f0ff;
+}
+
+#container label, label {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 8px 3px;
+    color: #1a237e;
+}
+
+#button, .dele {
+    width: auto;
+    padding: 8px 18px;
+    height: 38px;
+    border-radius: 6px;
+    border: 1.5px solid #1976d2;
+    cursor: pointer;
+    background: linear-gradient(90deg, #1976d2 80%, #64b5f6 100%);
+    font-weight: 600;
+    color: #fff;
+    box-shadow: 0 1px 4px rgba(120,180,255,0.13);
+    transition: background 0.3s, color 0.2s;
+}
+#button:hover, .dele:hover {
+    background: linear-gradient(90deg, #64b5f6 80%, #1976d2 100%);
+    color: #fff;
+}
+
+#search {
+    height: 28px;
+    width: 220px;
+    overflow: auto;
+    border: 1.5px solid #1976d2;
+    border-radius: 6px;
+    padding: 0 10px;
+    font-size: 15px;
+    background: #e3f0ff;
+    color: #1a237e;
+    margin-left: 8px;
+}
+
+.analyse-box {
+    width: 260px;
+    min-height: 90px;
+        background: linear-gradient(120deg, #e3f0ff 60%, #f8fbff 100%);
+    position: relative;
+    margin: 0 18px 18px 0;
+        border: 1.5px solid #1976d2;
+        box-shadow: 0 2px 8px rgba(120,180,255,0.10);
+    box-shadow: 0 2px 8px rgba(66, 180, 66, 0.10);
+    padding: 16px 14px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 15px;
+    color: #222;
+    flex-shrink: 0;
+}
+.analyse-box button {
+    padding: 8px 16px;
+    background: linear-gradient(90deg, #43a047 80%, #81c784 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+    margin-top: 4px;
+}
+.analyse-box button:hover {
+    background: #388e3c;
+}
+
+.analysis-summary {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    background: linear-gradient(90deg, #e3f0ff 80%, #e3ffe6 100%);
+    border: 2px solid #b3d0f7;
+    border-radius: 12px;
+    padding: 16px 24px;
+    margin: 0 0 24px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    flex-shrink: 0;
+}
+.summary-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.summary-label {
+    color: #1976d2;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+.summary-value {
+    background: #fff;
+    border: 1.5px solid #b3d0f7;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-weight: bold;
+    min-width: 36px;
+    text-align: center;
+    font-size: 15px;
+}
+.summary-value.failed {
+    background: #ffdde0;
+    border-color: #f44336;
+    color: #b71c1c;
+}
+.summary-value.passed {
+    background: #e3ffe6;
+    border-color: #43a047;
+    color: #1b5e20;
+}
+
+.gpa-box {
+    width: 170px;
+    min-height: 60px;
+    background: linear-gradient(120deg, #e3f0ff 60%, #e3ffe6 100%);
+    position: relative;
+    margin: 0 10px 18px 0;
+    border: 1.5px solid #1976d2;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.10);
+    padding: 14px 10px 10px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    font-size: 15px;
+    color: #222;
+    flex-shrink: 0;
+}
+.gpa-btn {
+    padding: 8px 16px;
+    background: linear-gradient(90deg, #1976d2 80%, #64b5f6 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+.gpa-btn:hover {
+    background: #1565c0;
+}
+
+/* Graph Canvas Styling */
+#analyse-graph-canvas {
+    display: block;
+    margin: 36px auto 0 auto;
+    background: linear-gradient(120deg, #e3f0ff 60%, #e3ffe6 100%);
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(120,180,255,0.13);
+    border: 2px solid #1976d2;
+    max-width: 100%;
+    height: auto;
+}
 .container {
     margin-top: 20px;
     overflow-x: auto;
@@ -53,7 +288,7 @@ label {
 }
 
 #button:hover, .dele:hover {
-    background-color: #e0e0e0;
+    background-color: #20ee81;
 }
 
 #search {
@@ -61,7 +296,10 @@ label {
     width: 200px;
     overflow: auto;
     border: solid 1px;
-    border-radius: 5px;
+        margin-left: 0;
+        margin-top: 18px;
+        margin-bottom: 10px;
+        display: block;
 }
 
 .table {
