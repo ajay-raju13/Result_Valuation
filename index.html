@@ -9,11 +9,13 @@
 <body>
     <div id="container">
         <div class="top-bar">
-            <label for="input-box">Upload a CSV file</label>
-            <input type="file" id="input-box" accept=".csv">
+            <label for="input-box">Upload a CSV or Excel file</label>
+                <input type="file" id="input-box" accept=".csv, .xlsx, .xls">
             <button id="button">Add</button>
         </div>
-        <script src="script.js"></script>
+    <!-- SheetJS for Excel parsing -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="script.js"></script>
     </div>
 </body>
 </html>
