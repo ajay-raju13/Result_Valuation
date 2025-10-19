@@ -1,163 +1,214 @@
+/* Base styles */
 html, body {
     height: 100%;
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', Arial, sans-serif;
-    background: linear-gradient(135deg, #f0f4fd 0%, #e0e7ef 100%);
-    min-height: 100vh;
+    background: #f0f4fd;
     color: #222;
+    scroll-behavior: smooth;
 }
 
+/* Main container */
 #container {
     max-width: 1200px;
-    margin: 40px auto 0 auto;
-    background: linear-gradient(120deg, #f8fbff 60%, #e3f0ff 100%);
+    margin: 20px auto 40px auto;
+    background: #f0f4fd;
     border-radius: 18px;
-    box-shadow: 0 8px 32px rgba(60,60,60,0.13);
-    padding: 32px 32px 48px 32px;
+    box-shadow: 0 8px 32px rgba(60,60,60,0.1);
+    padding: 32px;
     min-height: 80vh;
-    position: relative;
-    border: 2px solid #b3d0f7;
+    transition: all 0.3s ease;
 }
 
+/* Navbar / Top bar */
 .top-bar {
     display: flex;
-    align-items: center;
-    gap: 18px;
     flex-wrap: wrap;
-    margin-bottom: 32px;
+    gap: 12px;
+    align-items: center;
     justify-content: flex-start;
-    min-height: 70px;
-    background: linear-gradient(90deg, #e3f0ff 60%, #f0f4fd 100%);
+    margin-bottom: 20px;
+    background: #e3f0ff;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(120,180,255,0.10);
     padding: 18px 24px;
-    border: 1.5px solid #b3d0f7;
+    box-shadow: 0 2px 8px rgba(120,180,255,0.1);
 }
 
-.table-container {
-    width: 100%;
-    font-size: 15px;
-    margin: 0 auto 32px auto;
-    background: linear-gradient(120deg, #e3f0ff 60%, #f8fbff 100%);
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(120,180,255,0.10);
-    padding: 18px 12px 24px 12px;
-    border: 1.5px solid #b3d0f7;
-}
-
-.table th,
-.table td {
-    border: 1px solid #b3d0f7;
-    padding: 12px 16px;
-    text-align: left;
-    transition: background 0.2s;
-}
-.table th {
-    background: linear-gradient(90deg, #b3d0f7 80%, #e3f0ff 100%);
-    font-weight: 700;
-    color: #1a237e;
-    letter-spacing: 0.5px;
-}
-.table {
-    margin-top: 40px;
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    background: #f8fbff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(120,180,255,0.10);
-}
-.table tr:hover td {
-    background-color: #e3f0ff;
-}
-
-#container label, label {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 8px 3px;
-    color: #1a237e;
-}
-
-#button, .dele {
-    width: auto;
-    padding: 8px 18px;
-    height: 38px;
+/* Navbar buttons */
+.top-bar button {
+    flex-shrink: 0;
+    padding: 8px 16px;
     border-radius: 6px;
     border: 1.5px solid #1976d2;
     cursor: pointer;
-    background: linear-gradient(90deg, #1976d2 80%, #64b5f6 100%);
-    font-weight: 600;
+    background: #1976d2;
     color: #fff;
-    box-shadow: 0 1px 4px rgba(120,180,255,0.13);
-    transition: background 0.3s, color 0.2s;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+.top-bar button:hover {
+    background: #64b5f6;
+    transform: translateY(-2px);
+}
+
+/* Analyse button */
+#analyse-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1.5px solid #1976d2;
+    cursor: pointer;
+    background: #1976d2;
+    color: #fff;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+#analyse-btn:hover {
+    background: #64b5f6;
+    transform: translateY(-2px);
+}
+
+/* Table container */
+.table-container {
+    /* Make the table visually full-bleed while keeping the #container centered */
+    position: relative;
+    background: #f0f4fd;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw; /* pull to left edge */
+    margin-right: -50vw; /* pull to right edge */
+    width: 100vw; /* occupy full viewport width */
+    padding: 0 24px; /* internal padding so table doesn't touch edges */
+    box-sizing: border-box;
+    overflow-x: visible;
+}
+
+/* Table */
+.table {
+    width: 100%; /* fill the table-container (full viewport width) */
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(120,180,255,0.08);
+    /* Use fixed layout so columns respect available width and wrap content */
+    table-layout: fixed;
+    margin-top: 18px; /* add spacing above each table */
+}
+
+/* Table cells */
+.table th, .table td {
+    padding: 10px 12px;
+    border: 1px solid #b3d0f7;
+    text-align: left;
+    /* Allow breaking long words and wrapping to new lines so horizontal space is conserved */
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* Make the first column a bit wider to emphasize index/subject names */
+.table th:first-child,
+.table td:first-child {
+    width: 160px;
+    min-width: 160px;
+}
+
+/* Table header */
+.table th {
+    background: #b3d0f7;
+    color: #1a237e;
+    font-weight: 600;
+    /* Allow header text to wrap and remain readable on narrow screens */
+    white-space: normal;
+}
+
+/* Hover effect */
+.table tr:hover td {
+    background: #e3f0ff;
+}
+
+/* Labels */
+label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a237e;
+}
+
+/* General buttons */
+#button, .dele {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1.5px solid #1976d2;
+    cursor: pointer;
+    background: #1976d2;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(120,180,255,0.13);
+    transition: all 0.3s ease;
 }
 #button:hover, .dele:hover {
-    background: linear-gradient(90deg, #64b5f6 80%, #1976d2 100%);
-    color: #fff;
+    background: #64b5f6;
+    transform: translateY(-2px);
 }
 
+/* Search input */
 #search {
-    height: 28px;
-    width: 220px;
-    overflow: auto;
-    border: 1.5px solid #1976d2;
+    padding: 6px 10px;
     border-radius: 6px;
-    padding: 0 10px;
-    font-size: 15px;
+    border: 1.5px solid #1976d2;
     background: #e3f0ff;
     color: #1a237e;
-    margin-left: 8px;
+    font-size: 15px;
+    transition: all 0.3s;
+}
+#search:focus {
+    outline: none;
+    border-color: #64b5f6;
+    box-shadow: 0 0 6px rgba(100, 181, 246, 0.5);
 }
 
+/* Analyse boxes */
 .analyse-box {
-    width: 260px;
-    min-height: 90px;
-        background: linear-gradient(120deg, #e3f0ff 60%, #f8fbff 100%);
-    position: relative;
-    margin: 0 18px 18px 0;
-        border: 1.5px solid #1976d2;
-        box-shadow: 0 2px 8px rgba(120,180,255,0.10);
-    box-shadow: 0 2px 8px rgba(66, 180, 66, 0.10);
-    padding: 16px 14px 14px 14px;
+    width: 220px;
+    background: #e3f0ff;
+    border: 1.5px solid #1976d2;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(120,180,255,0.1);
+    padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 15px;
-    color: #222;
-    flex-shrink: 0;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.analyse-box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 16px rgba(120,180,255,0.2);
 }
 .analyse-box button {
-    padding: 8px 16px;
-    background: linear-gradient(90deg, #43a047 80%, #81c784 100%);
-    color: white;
-    border: none;
+    padding: 8px 14px;
     border-radius: 6px;
+    border: none;
     cursor: pointer;
     font-weight: 600;
-    transition: background 0.3s;
-    margin-top: 4px;
+    background: #1976d2; /* consistent blue */
+    color: white;
+    transition: all 0.3s;
+    flex: 1;
 }
 .analyse-box button:hover {
-    background: #388e3c;
+    background: #64b5f6;
+    transform: translateY(-2px);
 }
 
+/* Analysis summary */
 .analysis-summary {
     display: flex;
-    align-items: center;
-    gap: 24px;
-    background: linear-gradient(90deg, #e3f0ff 80%, #e3ffe6 100%);
-    border: 2px solid #b3d0f7;
+    gap: 20px;
+    background: #f8f9fa;
     border-radius: 12px;
-    padding: 16px 24px;
-    margin: 0 0 24px 0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    flex-shrink: 0;
+    padding: 14px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
 }
 .summary-item {
     display: flex;
@@ -167,17 +218,15 @@ html, body {
 .summary-label {
     color: #1976d2;
     font-weight: 600;
-    letter-spacing: 0.2px;
 }
 .summary-value {
-    background: #fff;
-    border: 1.5px solid #b3d0f7;
-    border-radius: 6px;
-    padding: 5px 12px;
-    font-weight: bold;
     min-width: 36px;
     text-align: center;
-    font-size: 15px;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 6px;
+    border: 1.5px solid #b3d0f7;
+    transition: all 0.3s;
 }
 .summary-value.failed {
     background: #ffdde0;
@@ -190,239 +239,58 @@ html, body {
     color: #1b5e20;
 }
 
+/* GPA box */
 .gpa-box {
-    width: 170px;
-    min-height: 60px;
-    background: linear-gradient(120deg, #e3f0ff 60%, #e3ffe6 100%);
-    position: relative;
-    margin: 0 10px 18px 0;
+    width: 160px;
+    background: #e3f0ff;
     border: 1.5px solid #1976d2;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.10);
-    padding: 14px 10px 10px 10px;
+    padding: 14px 12px;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    font-size: 15px;
-    color: #222;
-    flex-shrink: 0;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.gpa-box:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(33,150,243,0.2);
 }
 .gpa-btn {
-    padding: 8px 16px;
-    background: linear-gradient(90deg, #1976d2 80%, #64b5f6 100%);
-    color: white;
+    padding: 8px 14px;
     border: none;
     border-radius: 6px;
-    cursor: pointer;
+    background: #1976d2;
+    color: white;
     font-weight: 600;
-    transition: background 0.3s;
+    cursor: pointer;
+    transition: all 0.3s;
 }
 .gpa-btn:hover {
     background: #1565c0;
+    transform: translateY(-2px);
 }
 
-/* Graph Canvas Styling */
+/* Graph canvas */
 #analyse-graph-canvas {
     display: block;
-    margin: 36px auto 0 auto;
-    background: linear-gradient(120deg, #e3f0ff 60%, #e3ffe6 100%);
-    border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(120,180,255,0.13);
-    border: 2px solid #1976d2;
+    margin: 36px auto;
+    width: 100%;
     max-width: 100%;
     height: auto;
+    border-radius: 16px;
+    border: 2px solid #1976d2;
+    box-shadow: 0 2px 12px rgba(120,180,255,0.15);
+    transition: transform 0.3s;
 }
-.container {
-    margin-top: 20px;
-    overflow-x: auto;
-}
-
-.top-bar {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
-    justify-content: flex-start;
-    min-height: 100px;
+#analyse-graph-canvas:hover {
+    transform: scale(1.02);
 }
 
-.table-container {
-    width: 100%;
-    font-size: 14px;
-}
-
-.table th,
-.table td {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: left;
-}
-
-.table th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-}
-
-tr:hover {
-    background-color: #c7c5c5;
-}
-
-label {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 8px 3px;
-}
-
-#button, .dele {
-    width: auto;
-    padding: 6px 12px;
-    height: 35px;
-    border-radius: 5px;
-    border: 1px solid #333;
-    cursor: pointer;
-    background-color: #f0f0f0;
-    font-weight: 600;
-    transition: background-color 0.3s;
-}
-
-#button:hover, .dele:hover {
-    background-color: #20ee81;
-}
-
-#search {
-    height: 20px;
-    width: 200px;
-    overflow: auto;
-    border: solid 1px;
-        margin-left: 0;
-        margin-top: 18px;
-        margin-bottom: 10px;
-        display: block;
-}
-
-.table {
-    margin-top : 70px;
-    height: auto;
-    width: auto;
-    border-collapse: collapse;
-}
-.analyse-box {
-    width: 220px;
-    min-height: 80px;
-    background-color: #dcf3dd;
-    position: relative;
-    margin: 0 10px;
-    border: 1px solid #333;
-    border-radius: 8px;
-    box-shadow: 0 0 8px rgba(66, 66, 66, 0.3);
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    color: #333;
-    flex-shrink: 0;
-}
-
-.analyse-box button {
-    padding: 6px 12px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s;
-}
-
-.analyse-box button:hover {
-    background-color: #45a049;
-}
-
-/* Analysis Summary Styles */
-.analysis-summary {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    background-color: #f8f9fa;
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin: 0 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    flex-shrink: 0;
-}
-
-.summary-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.summary-label {
-    color: #495057;
-    font-weight: 600;
-}
-
-.summary-value {
-    background-color: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-weight: bold;
-    min-width: 30px;
-    text-align: center;
-}
-
-.summary-value.failed {
-    background-color: #f8d7da;
-    border-color: #f5c6cb;
-    color: #721c24;
-}
-
-.summary-value.passed {
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-    color: #155724;
-}
-
-/* GPA Box Styles */
-.gpa-box {
-    width: 150px;
-    min-height: 60px;
-    background-color: #e3f2fd;
-    position: relative;
-    margin: 0 10px;
-    border: 1px solid #2196f3;
-    border-radius: 8px;
-    box-shadow: 0 0 8px rgba(33, 150, 243, 0.3);
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    font-family: Arial, sans-serif;
-    font-size: 14px;
-    color: #333;
-    flex-shrink: 0;
-}
-
-.gpa-btn {
-    padding: 6px 12px;
-    background-color: #2196f3;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s;
-}
-
-.gpa-btn:hover {
-    background-color: #1976d2;
+/* Responsive fallback for very narrow screens */
+@media (max-width: 700px) {
+    .table th:first-child, .table td:first-child {
+        width: 140px;
+        min-width: 120px;
+    }
+    .table { margin-top: 12px; }
 }
