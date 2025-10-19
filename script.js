@@ -7,6 +7,83 @@ const topBar = document.querySelector('.top-bar');
 let deleButton = null;
 let searchbar = null;
 
+// Helper: process CSV text (creates table, search, delete button etc.)
+function processCSV(contents) {
+    if (!searchbar) {
+        searchbar = document.createElement('input');
+        searchbar.id = 'search';
+        searchbar.setAttribute('placeholder', 'search');
+        label.innerText = 'search  ';
+        label.setAttribute('for', 'search');
+        main.appendChild(label);
+    }
+
+    if (!searchbar._hasListener) {
+        searchbar.addEventListener('input', function () {
+            const val = searchbar.value.toLowerCase();
+            const table = document.querySelector('.table');
+            const rows = table.querySelectorAll('tr');
+
+            rows.forEach((row, index) => {
+                if (index === 0) return;
+                const rowText = row.textContent.toLowerCase();
+                row.style.display = rowText.includes(val) ? '' : 'none';
+            });
+        });
+        searchbar._hasListener = true;
+    }
+
+    if (!searchbar.parentNode) main.appendChild(searchbar);
+
+    const rows = contents.trim().split("\n");
+
+    const div = document.createElement('div');
+    div.classList.add('table-container');
+    main.appendChild(div);
+
+    const table = document.createElement('table');
+    table.classList.add('table');
+    div.appendChild(table);
+
+    if (!deleButton) {
+        deleButton = document.createElement('button');
+        deleButton.textContent = 'Delete Table';
+        deleButton.classList.add('dele');
+        deleButton.addEventListener('click', function () {
+            const analyseBoxes = document.querySelectorAll('.analyse-box');
+            analyseBoxes.forEach(box => box.remove());
+            // Remove GPA boxes if they exist
+            const gpaBoxes = document.querySelectorAll('.gpa-box');
+            gpaBoxes.forEach(box => box.remove());
+            // Remove analysis summary if it exists
+            const analysisSummary = document.querySelector('.analysis-summary');
+            if (analysisSummary) {
+                analysisSummary.remove();
+            }
+            div.remove();
+            deleButton.remove();
+            deleButton = null;
+            if (searchbar) {
+                searchbar.remove();
+                searchbar = null;
+            }
+            label.remove();
+        });
+        topBar.appendChild(deleButton);
+    }
+
+    for (let i = 0; i < rows.length; i++) {
+        const columns = rows[i].split(",");
+        const tr = document.createElement('tr');
+        for (let j = 0; j < columns.length; j++) {
+            const cell = document.createElement(i === 0 ? 'th' : 'td');
+            cell.textContent = columns[j].trim();
+            tr.appendChild(cell);
+        }
+        table.appendChild(tr);
+    }
+}
+
 addbtn.addEventListener('click', function () {
     if (input.files.length === 0) {
         alert("Please select a file.");
@@ -14,80 +91,33 @@ addbtn.addEventListener('click', function () {
         alert("There is already a table.");
     } else {
         const file = input.files[0];
-        const reader = new FileReader();
-        reader.readAsText(file);
 
-        reader.onload = function (e) {
-            if (!searchbar) {
-                searchbar = document.createElement('input');
-                searchbar.id = 'search';
-                searchbar.setAttribute('placeholder', 'search');
-                label.innerText = 'search  ';
-                label.setAttribute('for', 'search');
-                main.appendChild(label);
+        // If Excel file, use SheetJS to convert first sheet to CSV
+        if (/\.xlsx?$|\.xls$/i.test(file.name) || file.type === 'application/vnd.ms-excel' || file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+            if (!window.XLSX) {
+                alert('Excel parsing library is not loaded. Please check your internet connection.');
+                return;
             }
-
-            searchbar.addEventListener('input', function () {
-                const val = searchbar.value.toLowerCase();
-                const table = document.querySelector('.table');
-                const rows = table.querySelectorAll('tr');
-
-                rows.forEach((row, index) => {
-                    if (index === 0) return;
-                    const rowText = row.textContent.toLowerCase();
-                    row.style.display = rowText.includes(val) ? '' : 'none';
-                });
-            });
-
-            main.appendChild(searchbar);
-
-            const contents = e.target.result;
-            const rows = contents.trim().split("\n");
-
-            const div = document.createElement('div');
-            div.classList.add('table-container');
-            main.appendChild(div);
-
-            const table = document.createElement('table');
-            table.classList.add('table');
-            div.appendChild(table);
-
-            if (!deleButton) {
-                deleButton = document.createElement('button');
-                deleButton.textContent = 'Delete Table';
-                deleButton.classList.add('dele');
-                deleButton.addEventListener('click', function () {
-                    const analyseBoxes = document.querySelectorAll('.analyse-box');
-                    analyseBoxes.forEach(box => box.remove());
-                    // Remove GPA boxes if they exist
-                    const gpaBoxes = document.querySelectorAll('.gpa-box');
-                    gpaBoxes.forEach(box => box.remove());
-                    // Remove analysis summary if it exists
-                    const analysisSummary = document.querySelector('.analysis-summary');
-                    if (analysisSummary) {
-                        analysisSummary.remove();
-                    }
-                    div.remove();
-                    deleButton.remove();
-                    deleButton = null;
-                    searchbar.remove();
-                    searchbar = null;
-                    label.remove();
-                });
-                topBar.appendChild(deleButton);
-            }
-
-            for (let i = 0; i < rows.length; i++) {
-                const columns = rows[i].split(",");
-                const tr = document.createElement('tr');
-                for (let j = 0; j < columns.length; j++) {
-                    const cell = document.createElement(i === 0 ? 'th' : 'td');
-                    cell.textContent = columns[j].trim();
-                    tr.appendChild(cell);
+            const r = new FileReader();
+            r.readAsArrayBuffer(file);
+            r.onload = function(ev) {
+                try {
+                    const data = new Uint8Array(ev.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.SheetNames[0];
+                    const csv = XLSX.utils.sheet_to_csv(workbook.Sheets[firstSheet]);
+                    processCSV(csv);
+                } catch (err) {
+                    alert('Failed to parse Excel file: ' + err.message);
                 }
-                table.appendChild(tr);
-            }
-        };
+            };
+        } else {
+            const r = new FileReader();
+            r.readAsText(file);
+            r.onload = function(ev) {
+                processCSV(ev.target.result);
+            };
+        }
     }
 });
 
@@ -128,7 +158,8 @@ analyse.addEventListener('click', function () {
                 studentCount++;
 
                 for (let i = 1; i < cells.length; i++) {
-                    if (cells[i].textContent.trim().toLowerCase() === 'f' || cells[i].textContent.trim().toLowerCase() === 'ab') {
+                    const g = cells[i].textContent.trim().toLowerCase();
+                    if (g === 'f' || g === 'fail' || g === 'ab') {
                         failCount++;
                         row.style.backgroundColor = '#ffcccc';
                         break;
@@ -176,34 +207,46 @@ analyse.addEventListener('click', function () {
                     existingGraph.parentNode.removeChild(existingGraph);
                 }
 
-                // Get subject names from main table header (th index 1-8)
+                // Get subject names and pass/fail counts from the main parsed table
                 const mainTable = document.querySelector('.table');
                 if (!mainTable) {
                     alert('Main table not found.');
                     return;
                 }
-                const ths = mainTable.querySelectorAll('tr th');
+                const mainRows = mainTable.querySelectorAll('tr');
+                // Use second row for subject names if it exists and has enough cells, otherwise use first row
+                const candidate = mainRows[1] && mainRows[1].querySelectorAll('th,td').length > 1 ? mainRows[1] : mainRows[0];
+                const headerCells = candidate.querySelectorAll('th,td');
                 const subjects = [];
                 for (let i = 1; i <= 8; i++) {
-                    if (ths[i]) subjects.push(ths[i].textContent.trim());
+                    if (headerCells[i]) subjects.push(headerCells[i].textContent.trim());
                 }
 
-                // Get pass/fail counts from analyse table
-                const analyseTable = document.getElementById('analyse-table');
-                if (!analyseTable) {
-                    alert('Please generate the analyse table first.');
-                    return;
-                }
-                const rows = analyseTable.querySelectorAll('tr');
+                // Determine where data rows start depending on header choice
+                const dataStartIndex = (candidate === mainRows[1]) ? 2 : 1;
+
+                // Compute pass/fail counts directly from main table data
                 const passCounts = [];
                 const failCounts = [];
-                for (let i = 1; i <= 8; i++) {
-                    const tds = rows[i].querySelectorAll('td');
+                for (let col = 1; col <= 8; col++) {
                     let pass = 0;
-                    for (let j = 1; j <= 10; j++) {
-                        pass += parseInt(tds[j].textContent) || 0;
+                    let fail = 0;
+                    for (let r = dataStartIndex; r < mainRows.length; r++) {
+                        const cells = mainRows[r].querySelectorAll('td');
+                        if (!cells || cells.length <= col) continue;
+                        const gradeRaw = cells[col].textContent.trim();
+                        const grade = gradeRaw.toUpperCase();
+                        // Treat 'F' and 'FAIL' as failures; 'AB' also counts as failure.
+                        if (grade === 'F' || grade === 'FAIL' || grade === 'AB') {
+                            fail++;
+                        } else if (grade === 'P' || grade === 'PASS') {
+                            // Explicit pass markers
+                            pass++;
+                        } else if (grade !== '') {
+                            // Any other non-empty grade is considered a pass
+                            pass++;
+                        }
                     }
-                    let fail = parseInt(tds[11].textContent) || 0;
                     passCounts.push(pass);
                     failCounts.push(fail);
                 }
@@ -306,18 +349,19 @@ analyse.addEventListener('click', function () {
                     ctx.fillText(failPercentages[i].toFixed(1) + '%', x0 + barWidth + 5, canvas.height - margin - failHeight - 8);
                 }
 
-                // Draw total pass and fail percentage at the top
-                const totalPass = passCounts.reduce((a, b) => a + b, 0);
-                const totalFail = failCounts.reduce((a, b) => a + b, 0);
-                const total = totalPass + totalFail;
+                // Draw total pass and fail percentage at the top using analysed student counts
+                // `studentCount`, `passCount` and `failCount` are computed in the outer analyse scope
+                const total = studentCount || (passCounts.reduce((a,b)=>a+b,0) + failCounts.reduce((a,b)=>a+b,0));
+                const totalPass = typeof passCount === 'number' ? passCount : passCounts.reduce((a, b) => a + b, 0);
+                const totalFail = typeof failCount === 'number' ? failCount : failCounts.reduce((a, b) => a + b, 0);
                 const overallPass = total > 0 ? (totalPass / total) * 100 : 0;
                 const overallFail = total > 0 ? (totalFail / total) * 100 : 0;
                 ctx.font = 'bold 20px Segoe UI, Arial';
                 ctx.textAlign = 'center';
-                ctx.fillStyle = '#43a047';
-                ctx.fillText('Total Pass: ' + overallPass.toFixed(1) + '%', canvas.width / 2 - 100, margin - 30);
+                ctx.fillStyle = '#1976d2';
+                ctx.fillText('Total Pass: ' + overallPass.toFixed(1) + '%', canvas.width / 2 - 120, margin - 30);
                 ctx.fillStyle = '#f44336';
-                ctx.fillText('Total Fail: ' + overallFail.toFixed(1) + '%', canvas.width / 2 + 100, margin - 30);
+                ctx.fillText('Total Fail: ' + overallFail.toFixed(1) + '%', canvas.width / 2 + 120, margin - 30);
             });
 
             // ...existing code for analyse table creation...
@@ -328,60 +372,81 @@ analyse.addEventListener('click', function () {
             tableContainer.appendChild(analyseTable);
             // ...existing code for header and data rows...
             const headerRow = document.createElement('tr');
-            const headings = ['index', 'S', 'A+', 'A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'P', 'F', 'AB', 'Total Pass'];
+            const headings = ['index', 'S', 'A+', 'A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'P', 'F', 'AB', 'FAIL', 'PASS'];
             headings.forEach(heading => {
                 const th = document.createElement('th');
                 th.textContent = heading;
                 headerRow.appendChild(th);
             });
             analyseTable.appendChild(headerRow);
-            const originalTable = document.querySelector('.table');
-            const originalHeaderRow = originalTable.querySelector('tr');
-            const originalHeaders = originalHeaderRow.querySelectorAll('th');
-            for (let i = 1; i <= 8; i++) {
+
+            const mainTable = document.querySelector('.table');
+            const mainRows = mainTable.querySelectorAll('tr');
+            // choose second row for subject names if present, otherwise first
+            const candidateHeaderRow = (mainRows[1] && mainRows[1].querySelectorAll('th,td').length > 1) ? mainRows[1] : mainRows[0];
+            const headerCells = candidateHeaderRow.querySelectorAll('th,td');
+            const dataStart = (candidateHeaderRow === mainRows[1]) ? 2 : 1;
+
+            for (let col = 1; col <= 8; col++) {
                 const dataRow = document.createElement('tr');
                 const indexCell = document.createElement('td');
-                if (originalHeaders[i]) {
-                    indexCell.textContent = originalHeaders[i].textContent;
+                if (headerCells[col]) {
+                    indexCell.textContent = headerCells[col].textContent.trim();
+                } else {
+                    indexCell.textContent = '';
                 }
                 dataRow.appendChild(indexCell);
+
+                // Counters for each grade
                 let countS = 0, countAplus = 0, countA = 0, countBplus = 0, countB = 0, countCplus = 0;
                 let countC = 0, countDplus = 0, countD = 0, countP = 0, countF = 0, countAB = 0;
-                const originalRows = originalTable.querySelectorAll('tr');
-                originalRows.forEach((row, rowIndex) => {
-                    if (rowIndex === 0) return;
-                    const cells = row.querySelectorAll('td');
-                    if (cells[i]) {
-                        const grade = cells[i].textContent.trim().toUpperCase();
-                        switch(grade) {
-                            case 'S': countS++; break;
-                            case 'A+': countAplus++; break;
-                            case 'A': countA++; break;
-                            case 'B+': countBplus++; break;
-                            case 'B': countB++; break;
-                            case 'C+': countCplus++; break;
-                            case 'C': countC++; break;
-                            case 'D+': countDplus++; break;
-                            case 'D': countD++; break;
-                            case 'P': countP++; break;
-                            case 'F': countF++; break;
-                            case 'AB': countAB++; break;
-                        }
+
+                for (let r = dataStart; r < mainRows.length; r++) {
+                    const cells = mainRows[r].querySelectorAll('td');
+                    if (!cells || cells.length <= col) continue;
+                    const grade = cells[col].textContent.trim().toUpperCase();
+                    switch (grade) {
+                        case 'S': countS++; break;
+                        case 'A+': countAplus++; break;
+                        case 'A': countA++; break;
+                        case 'B+': countBplus++; break;
+                        case 'B': countB++; break;
+                        case 'C+': countCplus++; break;
+                        case 'C': countC++; break;
+                        case 'D+': countDplus++; break;
+                        case 'D': countD++; break;
+                        case 'P':
+                        case 'PASS': countP++; break;
+                        case 'F':
+                        case 'FAIL': countF++; break;
+                        case 'AB': countAB++; break;
+                        default: break;
                     }
-                });
+                }
+
                 const gradeCounts = [countS, countAplus, countA, countBplus, countB, countCplus, countC, countDplus, countD, countP, countF, countAB];
                 gradeCounts.forEach(count => {
                     const cell = document.createElement('td');
                     cell.textContent = count;
                     dataRow.appendChild(cell);
                 });
-                // Add Total Pass column (sum of all pass grades)
-                const totalPass = countS + countAplus + countA + countBplus + countB + countCplus + countC + countDplus + countD + countP;
-                const totalPassCell = document.createElement('td');
-                totalPassCell.textContent = totalPass;
-                totalPassCell.style.fontWeight = 'bold';
-                totalPassCell.style.background = '#e3ffe6';
-                dataRow.appendChild(totalPassCell);
+
+                // Aggregate FAIL = F + AB
+                const failTotal = countF + countAB;
+                const failCell = document.createElement('td');
+                failCell.textContent = failTotal;
+                failCell.style.background = '#ffdde0';
+                failCell.style.fontWeight = '600';
+                dataRow.appendChild(failCell);
+
+                // Aggregate PASS = sum of pass grades
+                const passTotal = countS + countAplus + countA + countBplus + countB + countCplus + countC + countDplus + countD + countP;
+                const passCell = document.createElement('td');
+                passCell.textContent = passTotal;
+                passCell.style.background = '#e3ffe6';
+                passCell.style.fontWeight = '600';
+                dataRow.appendChild(passCell);
+
                 analyseTable.appendChild(dataRow);
             }
         });
@@ -457,9 +522,10 @@ analyse.addEventListener('click', function () {
                 const originalTable = document.querySelector('.table');
                 const rows = Array.from(originalTable.querySelectorAll('tr'));
                 
-                // Skip the header row (first row)
-                const headerRow = rows[0];
-                const dataRows = rows.slice(1);
+                // Treat the first two rows as headers and don't sort them
+                const headerRow1 = rows[0];
+                const headerRow2 = rows[1];
+                const dataRows = rows.slice(2);
                 
                 // Sort data rows based on second-to-last column value
                 dataRows.sort((rowA, rowB) => {
@@ -474,10 +540,12 @@ analyse.addEventListener('click', function () {
                     return valueB - valueA;
                 });
                 
-                // Clear the table (except header)
-                dataRows.forEach(row => row.remove());
-                
-                // Re-append sorted rows
+                // Clear the table (except first two header rows)
+                rows.slice(2).forEach(row => row.remove());
+
+                // Re-append header rows then sorted rows
+                originalTable.appendChild(headerRow1);
+                originalTable.appendChild(headerRow2);
                 dataRows.forEach(row => originalTable.appendChild(row));
                 
                 console.log('Table sorted by second-to-last column in descending order');
@@ -491,9 +559,10 @@ analyse.addEventListener('click', function () {
                 const originalTable = document.querySelector('.table');
                 const rows = Array.from(originalTable.querySelectorAll('tr'));
                 
-                // Skip the header row (first row)
-                const headerRow = rows[0];
-                const dataRows = rows.slice(1);
+                // Treat the first two rows as headers and don't sort them
+                const headerRow1 = rows[0];
+                const headerRow2 = rows[1];
+                const dataRows = rows.slice(2);
                 
                 // Sort data rows based on last column value
                 dataRows.sort((rowA, rowB) => {
@@ -508,10 +577,12 @@ analyse.addEventListener('click', function () {
                     return valueB - valueA;
                 });
                 
-                // Clear the table (except header)
-                dataRows.forEach(row => row.remove());
-                
-                // Re-append sorted rows
+                // Clear the table (except first two header rows)
+                rows.slice(2).forEach(row => row.remove());
+
+                // Re-append header rows then sorted rows
+                originalTable.appendChild(headerRow1);
+                originalTable.appendChild(headerRow2);
                 dataRows.forEach(row => originalTable.appendChild(row));
                 
                 console.log('Table sorted by last column in descending order');
